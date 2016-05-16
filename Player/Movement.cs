@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
 
@@ -16,11 +16,10 @@ public class Movement : MonoBehaviour
 
 	//Movement Variables
 	int direction;
-
-	float shootUp = 1;
-	float shootRight = 2;
-	float shootLeft = 3;
-	float shootDown = 4;
+	private float shootUp = 1f;
+	private float shootRight = 2f;
+	private float shootLeft = 3f;
+	private float shootDown = 4f;
 	Rigidbody2D bPrefabUp;
 	Rigidbody2D bPrefabDown;
 	Rigidbody2D bPrefabLeft;
@@ -34,6 +33,7 @@ public class Movement : MonoBehaviour
 	private float movey;
 	public float moveSpeed;
 	Animator anim;
+	public bool canMove; 
 
 	//Damage Increase
 	public int startDamage;
@@ -57,26 +57,26 @@ public class Movement : MonoBehaviour
 	{
 		anim = GetComponent<Animator> ();
 	}
-
-
-	void FixedUpdate () {
-		// Changed Input.GetAxis to Input.GetAxisRaw. 
-		movex = Input.GetAxisRaw ("Horizontal");
-		movey = Input.GetAxisRaw ("Vertical");
-
-		GetComponent<Rigidbody2D>().velocity = new Vector2 (movex * moveSpeed, movey * moveSpeed);
-	}
 		
 	void Update()
 	{
 		// If it's not game over, we can move. 
-		if (!isGameOver) 
+		
+		if (!canMove)
 		{
-			moveUp ();
-			moveLeft ();
-			moveRight ();
-			moveDown ();
+			return; 
 		}
+	
+		moveUp ();
+		moveLeft ();
+		moveRight ();
+		moveDown ();
+		
+		// Changed Input.GetAxis to Input.GetAxisRaw. 
+		movex = Input.GetAxisRaw ("Horizontal");
+		movey = Input.GetAxisRaw ("Vertical");
+		
+		GetComponent<Rigidbody2D>().velocity = new Vector2 (movex * moveSpeed, movey * moveSpeed);
 
 		if (Time.time >= coolDown) 
 		{
@@ -98,8 +98,9 @@ public class Movement : MonoBehaviour
 		if (Input.GetKeyDown (KeyCode.Escape) && !isPaused) 
 		{ 
 			// Time.timeScale sets the speed of the game. 
-			Time.timeScale = 0;
+			// Time.timeScale = 0;
 			isPaused = true;
+			canMove = false; 
 			Debug.Log ("Pause");
 		} 
 
@@ -107,14 +108,13 @@ public class Movement : MonoBehaviour
 		else if (Input.GetKeyDown (KeyCode.Escape) && isPaused) 
 		{ 
 			// Time.timeScale sets the speed of the game. 
-			Time.timeScale = 1;
+			// Time.timeScale = 1;
 			isPaused = false;
+			canMove = true; 
 			Debug.Log ("Unpause");
 		}
 
 	}
-
-
 
 	///////////////////////////////////////
 	//////////// Pause Menu ///////////////
@@ -133,6 +133,7 @@ public class Movement : MonoBehaviour
 			{
 				Time.timeScale = 1; 
 				isPaused = false; 
+				canMove = true; 
 			}
 			if (GUI.Button (new Rect (Screen.width * .25f, Screen.height * guiPlacementY2, Screen.width * .5f, Screen.height * .1f), "Restart from the beginning")) 
 			{
@@ -143,40 +144,41 @@ public class Movement : MonoBehaviour
 			{
 				Application.LoadLevel ("mainMenu");
 			}
-
 			Time.timeScale = 0; 
 		}
 			
 	}
 
-	void Fire(){
+	void Fire()
+	{
 
-		/*
-		 bPrefab = Instantiate (arrow, new Vector3
-            (transform.position.x, transform.position.y,
-                transform.position.z), transform.rotation) as Rigidbody2D;*/
+		/* bPrefab = Instantiate (arrow, new Vector3 (transform.position.x, transform.position.y, transform.position.z), transform.rotation) as Rigidbody2D; */
 		
 		//The 'Physics2D.IgnoreCollision ...' allows the arrow to ignore collision with the character collider. 
 
-		if (direction == shootUp) {
+		if (direction == shootUp) 
+		{
 			bPrefabUp = Instantiate (arrowBottom, transform.position, Quaternion.Euler (new Vector3 (0, 0, 90))) as Rigidbody2D;
 			Physics2D.IgnoreCollision (bPrefabUp.GetComponent<Collider2D>(), transform.root.GetComponent<Collider2D>());
 			// AudioManager.instance.RandomizeSfx (arrowFire1, arrowFire2); 
 		}
 
-		if (direction == shootRight) {
+		if (direction == shootRight) 
+		{
 			bPrefabRight = Instantiate (arrowTop, transform.position, Quaternion.Euler (new Vector3 (0, 0, 0))) as Rigidbody2D;
 			Physics2D.IgnoreCollision (bPrefabRight.GetComponent<Collider2D>(), transform.root.GetComponent<Collider2D>()); 
 			// AudioManager.instance.RandomizeSfx (arrowFire1, arrowFire2); 
 		}
 
-		if (direction == shootLeft) {
+		if (direction == shootLeft) 
+		{
 			bPrefabLeft = Instantiate (arrowBottom, transform.position, Quaternion.Euler (new Vector3 (0, 0, 180))) as Rigidbody2D;
 			Physics2D.IgnoreCollision (bPrefabLeft.GetComponent<Collider2D>(), transform.root.GetComponent<Collider2D>());  
 			// AudioManager.instance.RandomizeSfx (arrowFire1, arrowFire2); 
 		}
 
-		if (direction == shootDown) {
+		if (direction == shootDown) 
+		{
 			bPrefabDown = Instantiate (arrowTop, transform.position, Quaternion.Euler (new Vector3 (0, 0, 270))) as Rigidbody2D;
 			Physics2D.IgnoreCollision (bPrefabDown.GetComponent<Collider2D>(), transform.root.GetComponent<Collider2D>());   
 			// AudioManager.instance.RandomizeSfx (arrowFire1, arrowFire2); 
@@ -217,8 +219,8 @@ public class Movement : MonoBehaviour
 			anim.SetBool("Right", false);
 			direction = 2;
 		}
-
 	}
+	
 	void moveLeft()
 	{
 		if (Input.GetKey (KeyCode.LeftArrow) || Input.GetKey(KeyCode.A))
@@ -286,8 +288,9 @@ public class Movement : MonoBehaviour
 		}
 	}
 
-	public void PowerUpIncrease(int addDamage){
-		//Adds additional damage to the current damage...
+	public void PowerUpIncrease(int addDamage)
+	{
+		// Adds additional damage to the current damage...
 		currentDamage += addDamage;
 	}
 
