@@ -15,6 +15,8 @@ public class Movement : MonoBehaviour
 
 
 	//Movement Variables
+	// Change these to int and update the movement code. 
+	
 	int direction;
 	private float shootUp = 1f;
 	private float shootRight = 2f;
